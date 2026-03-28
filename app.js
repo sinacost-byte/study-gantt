@@ -398,7 +398,6 @@ function render() {
   </div>`;
 
   app.innerHTML = html;
-  attachEvents();
 }
 
 function escapeHtml(s) {
@@ -406,19 +405,28 @@ function escapeHtml(s) {
 }
 
 // ===== EVENT DELEGATION =====
+// Walk up the DOM safely (handles SVG child elements that may not support closest on iOS Safari)
+function findActionTarget(el, root) {
+  while (el && el !== root) {
+    if (el.getAttribute && el.getAttribute('data-action')) return el;
+    el = el.parentElement;
+  }
+  return null;
+}
+
 function attachEvents() {
   const app = document.getElementById('app');
 
   app.addEventListener('click', (e) => {
-    const target = e.target.closest('[data-action]');
+    const target = findActionTarget(e.target, app);
     if (!target) return;
-    const action = target.dataset.action;
+    const action = target.getAttribute('data-action');
 
     if (action === 'setView') {
-      state.viewMode = target.dataset.view;
+      state.viewMode = target.getAttribute('data-view');
       render();
     } else if (action === 'nav') {
-      const dir = parseInt(target.dataset.dir);
+      const dir = parseInt(target.getAttribute('data-dir'));
       const d = new Date(state.navDate);
       if (state.viewMode === 'week') state.navDate = addDays(d, dir * 7);
       else if (state.viewMode === 'month') { d.setMonth(d.getMonth() + dir); state.navDate = d; }
@@ -427,12 +435,12 @@ function attachEvents() {
       state.navDate = new Date();
       render();
     } else if (action === 'toggleCollapse') {
-      const key = target.dataset.key;
+      const key = target.getAttribute('data-key');
       state.collapsed[key] = !state.collapsed[key];
       render();
     } else if (action === 'toggleTask') {
       e.stopPropagation();
-      const taskId = target.dataset.taskId;
+      const taskId = target.getAttribute('data-task-id');
       if (state.completed[taskId]) delete state.completed[taskId];
       else state.completed[taskId] = true;
       saveCompleted(state.completed);
@@ -510,6 +518,7 @@ async function init() {
   state.navDate = new Date();
 
   render();
+  attachEvents();
 
   // Scroll today into view after render
   setTimeout(() => {
