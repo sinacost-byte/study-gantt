@@ -19,7 +19,7 @@ function dayDiff(a, b) { return Math.round((b - a) / 86400000); }
 function addDays(d, n) { const r = new Date(d); r.setDate(r.getDate() + n); return r; }
 function fmtD(d) { return `${d.getMonth()+1}/${d.getDate()}`; }
 function fmtM(d) { return `${d.getFullYear()}年${d.getMonth()+1}月`; }
-function getWeekStart(d) { const r = new Date(d); r.setDate(r.getDate() - r.getDay()); return r; }
+function getWeekStart(d) { const r = new Date(d); r.setDate(r.getDate() - r.getDay()); r.setHours(0,0,0,0); return r; }
 function getMonthStart(d) { return new Date(d.getFullYear(), d.getMonth(), 1); }
 function getMonthEnd(d) { return new Date(d.getFullYear(), d.getMonth()+1, 0); }
 function sameDay(a,b) { return a.getFullYear()===b.getFullYear() && a.getMonth()===b.getMonth() && a.getDate()===b.getDate(); }
@@ -130,6 +130,36 @@ function svgFolder(size, color) {
 }
 function svgCalendar(size, color) {
   return `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="${color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>`;
+}
+
+// ===== TOOLTIP =====
+let longPressTimer = null;
+let longPressTriggered = false;
+
+function showTooltip(text, x, y) {
+  const el = document.getElementById('tooltip');
+  if (!el) return;
+  el.textContent = text;
+  const left = Math.min(x, window.innerWidth - 292);
+  let top = y + 8;
+  if (top + 100 > window.innerHeight) top = y - 60;
+  el.style.left = left + 'px';
+  el.style.top = top + 'px';
+  el.style.display = 'block';
+}
+
+function hideTooltip() {
+  const el = document.getElementById('tooltip');
+  if (el) el.style.display = 'none';
+}
+
+// Walk up DOM to find a week row-label with tooltip text
+function findLongPressTarget(el) {
+  while (el) {
+    if (el.getAttribute && el.getAttribute('data-row-type') === 'week' && el.getAttribute('data-tooltip-text')) return el;
+    el = el.parentElement;
+  }
+  return null;
 }
 
 // ===== APP STATE =====
@@ -320,8 +350,12 @@ function render() {
       : row.color ? row.color.text : '#1C1917';
 
     // Label cell
+    const taskTooltipAttrs = row.type === 'task' ? `data-action="showTooltip" data-tooltip-text="${escapeHtml(row.label)}"` : '';
+    const weekTooltipAttrs = row.type === 'week' ? `data-tooltip-text="${escapeHtml(row.label)}"` : '';
     html += `<div class="row-label${isClickable?' clickable':''}" style="height:${h}px;padding-left:${indent}px"
       ${isClickable ? `data-action="toggleCollapse" data-key="${row.colKey || row.id}"` : ''}
+      ${taskTooltipAttrs}
+      ${weekTooltipAttrs}
       data-row-type="${row.type}">`;
 
     if (row.type === 'section') {
@@ -417,12 +451,22 @@ function findActionTarget(el, root) {
 function attachEvents() {
   const app = document.getElementById('app');
 
+  // Tooltip: close when clicking outside (inside #app)
   app.addEventListener('click', (e) => {
+    if (longPressTriggered) {
+      longPressTriggered = false;
+      return;
+    }
+    hideTooltip();
+
     const target = findActionTarget(e.target, app);
     if (!target) return;
     const action = target.getAttribute('data-action');
 
-    if (action === 'setView') {
+    if (action === 'showTooltip') {
+      const text = target.getAttribute('data-tooltip-text');
+      if (text) showTooltip(text, e.clientX, e.clientY);
+    } else if (action === 'setView') {
       state.viewMode = target.getAttribute('data-view');
       render();
     } else if (action === 'nav') {
@@ -448,6 +492,44 @@ function attachEvents() {
     } else if (action === 'openFile') {
       document.getElementById('file-input').click();
     }
+  });
+
+  // Long press for week row labels (touch)
+  app.addEventListener('touchstart', (e) => {
+    const lpTarget = findLongPressTarget(e.target);
+    if (!lpTarget) return;
+    const touch = e.touches[0];
+    longPressTimer = setTimeout(() => {
+      longPressTriggered = true;
+      const text = lpTarget.getAttribute('data-tooltip-text');
+      if (text) showTooltip(text, touch.clientX, touch.clientY);
+    }, 500);
+  }, { passive: true });
+
+  app.addEventListener('touchend', () => {
+    clearTimeout(longPressTimer);
+    longPressTimer = null;
+  }, { passive: true });
+
+  app.addEventListener('touchmove', () => {
+    clearTimeout(longPressTimer);
+    longPressTimer = null;
+  }, { passive: true });
+
+  // Long press for week row labels (mouse/desktop)
+  app.addEventListener('mousedown', (e) => {
+    const lpTarget = findLongPressTarget(e.target);
+    if (!lpTarget) return;
+    longPressTimer = setTimeout(() => {
+      longPressTriggered = true;
+      const text = lpTarget.getAttribute('data-tooltip-text');
+      if (text) showTooltip(text, e.clientX, e.clientY);
+    }, 500);
+  });
+
+  app.addEventListener('mouseup', () => {
+    clearTimeout(longPressTimer);
+    longPressTimer = null;
   });
 }
 
