@@ -212,6 +212,19 @@ function getChartWidth(viewRange) {
   return Math.max(totalDays * minDayW, 400);
 }
 
+// Navigable range for ◀▶, derived every time from the loaded schedule's meta
+// (no fossil constants / stored values). Returns the first and last view-bucket
+// (week-start or month-start) that the schedule spans, so the buttons disable at
+// the real edges instead of scrolling into empty months forever.
+function getNavBounds() {
+  const { schedule, viewMode } = state;
+  const sd = schedule && schedule.meta.startDate, ed = schedule && schedule.meta.endDate;
+  if (!sd || !ed) return null;
+  const s = pd(sd), e = pd(ed);
+  if (viewMode === 'week') return { min: getWeekStart(s), max: getWeekStart(e) };
+  return { min: getMonthStart(s), max: getMonthStart(e) };
+}
+
 // ===== ROW GENERATION =====
 function buildRows() {
   const { schedule, collapsed, completed } = state;
@@ -323,6 +336,17 @@ function render() {
   const totalCount = allTaskIds.length;
   const doneCount = allTaskIds.filter(id => state.completed[id]).length;
 
+  // ◀▶ enablement, derived from the schedule's meta range (全体/year has no nav).
+  let canPrev = false, canNext = false;
+  if (viewMode !== 'year') {
+    const b = getNavBounds();
+    if (b) {
+      const unit = viewMode === 'week' ? getWeekStart(state.navDate) : getMonthStart(state.navDate);
+      canPrev = unit > b.min;
+      canNext = unit < b.max;
+    } else { canPrev = canNext = true; }
+  }
+
   // Build HTML
   let html = `
   <div class="header">
@@ -332,9 +356,9 @@ function render() {
       ).join('')}
     </div>
     <div class="nav-group">
-      <button class="nav-btn" data-action="nav" data-dir="-1" ${viewMode==='year'?'disabled':''}>${svgChevronRight(18,'#1C1917').replace('polyline points="9 18 15 12 9 6"','polyline points="15 18 9 12 15 6"')}</button>
+      <button class="nav-btn" data-action="nav" data-dir="-1" ${!canPrev?'disabled':''}>${svgChevronRight(18,'#1C1917').replace('polyline points="9 18 15 12 9 6"','polyline points="15 18 9 12 15 6"')}</button>
       <span class="nav-label">${viewRange.label}</span>
-      <button class="nav-btn" data-action="nav" data-dir="1" ${viewMode==='year'?'disabled':''}>${svgChevronRight(18,'#1C1917')}</button>
+      <button class="nav-btn" data-action="nav" data-dir="1" ${!canNext?'disabled':''}>${svgChevronRight(18,'#1C1917')}</button>
     </div>
     <button class="today-btn" data-action="today">${svgCalendar(14,'#57534E')}今日</button>
     <div class="header-spacer"></div>
@@ -500,9 +524,17 @@ function attachEvents() {
       render();
     } else if (action === 'nav') {
       const dir = parseInt(target.getAttribute('data-dir'));
-      const d = new Date(state.navDate);
-      if (state.viewMode === 'week') state.navDate = addDays(d, dir * 7);
-      else if (state.viewMode === 'month') { d.setMonth(d.getMonth() + dir); state.navDate = d; }
+      let d = new Date(state.navDate);
+      if (state.viewMode === 'week') d = addDays(d, dir * 7);
+      else if (state.viewMode === 'month') d.setMonth(d.getMonth() + dir);
+      // Clamp to the schedule's meta range so ◀▶ can't wander into empty months.
+      const b = getNavBounds();
+      if (b) {
+        const unit = state.viewMode === 'week' ? getWeekStart(d) : getMonthStart(d);
+        if (unit < b.min) d = new Date(b.min);
+        else if (unit > b.max) d = new Date(b.max);
+      }
+      state.navDate = d;
       render();
     } else if (action === 'today') {
       state.navDate = new Date();
