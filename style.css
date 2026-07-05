@@ -303,6 +303,31 @@ body {
   align-items: center;
 }
 
+.footer-meta {
+  border-top: 1px solid #F5F5F4;
+  background: #fff;
+  padding: 3px 12px 5px;
+  font-size: 9px;
+  color: #A8A29E;
+  flex-shrink: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.footer-meta span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.footer-meta.warn {
+  background: #FEF3C7;
+  color: #92400E;
+  font-weight: 600;
+}
+
 /* ===== TOOLTIP ===== */
 #tooltip {
   display: none;

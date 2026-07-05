@@ -13,6 +13,10 @@ const LABEL_W = 180;
 const ROW_H = { section: 40, week: 36, task: 32, 'milestone-header': 36, milestone: 32 };
 const DAY_NAMES = ['日','月','火','水','木','金','土'];
 
+// ===== EMBEDDED FALLBACK SCHEDULE (v6, keep in sync with public/schedule.md) =====
+// Used only when the network fetch and the localStorage cache both fail.
+const DEFAULT_MD = "# 1Q スケジュール\n\n## メタ情報\n- 開始日: 2026-03-28\n- 終了日: 2026-08-29\n- Quarter: 1Q\n- 週の開始曜日: 日曜日\n\n## 週間リズム（パターンC）\n\n### 基本構造：週末に講義、平日に演習\n\n| 曜日 | 確保時間 | 内容 |\n|------|----------|------|\n| 日曜 | 5〜10時間 | B科目の講義＋演習（Claudeと対話型） |\n| 月〜水 | 各1〜2時間 | B科目の演習続き・動画視聴・読書 |\n| 木〜金 | 各1〜2時間 | C科目の演習・復習・動画視聴・読書（土曜講義の予習含む） |\n| 土曜 | 5〜10時間 | C科目の講義＋演習 → A科目ディスカッション → バッファ |\n\n### 補足ルール\n- A科目の読書は移動時間（通勤往復1時間、出張時は数時間）に充てる\n- 平日は「新しい概念を学ぶ講義」をしない。週末講義の演習・復習・視聴・読書のみ\n- A科目はWeek8以降、1トピック2週間の深掘りモード。B/Cは1トピック1週ペース\n- 後半再設計（2026-06-23）：B/Cを6月末で閉じず7月後半まで延長。B＝定着アーク（Week 12-14：出力中心の再走＋統合レポート）、C＝深掘りアーク（Week 13-14：内Embedding-Transformer→外MCP）。A＝現行どおりWeek 12統合エッセイが2Qへの蝶番。三科目が7/18〜8/1で揃って閉じる\n- CのMCP（C Week 11＝7/4）はAのMCP分析より先に着地させる（依存はタイト）→ 7/04 達成済み\n- 再々設計（2026-07-05）：終了日を8/1→8/29へ延長（＋4週）。理由＝遅延でなく1単位あたりの深度増（定着アーク・Principle 10・パターン全体見直しはこの深度の産物）。C科目は深掘り→統合レポートの順に並び替え（レポート先行の設計理由「描く過程で深掘りの的を確定」は、的が6/23時点で確定済みのため消滅）。「三科目が揃って閉じる」は「B（8/8）→C（8/15）→A（8/29）の順に閉じ、A統合エッセイが最後＝2Qへの蝶番」に置き換え。新必着点＝C深掘り・外の着地（8/1）がA Week 12着手（8/9）より先。Aのパターン抽出③は全体見直しに拡大してWeek 10に合流。A Week 10・12は3週間枠。お盆週も通常運行\n- 詳細な設計意図はシラバス・覚書・seedを参照（本ファイルは痩せたタスク表＝アプリ原本）\n\n---\n\n## オリエンテーション（2026-03-28 〜 2026-04-04）\n- [ ] カリキュラム全体の確認・学習環境セットアップ\n- [ ] CS50x翻訳プレーヤーの動作確認\n- [ ] 学習管理アプリ（ガントチャート）の動作確認\n- [ ] 読書管理アプリ（Book Shelf）の動作確認\n- [ ] Python環境構築（ローカル or Google Colab）\n- [ ] 予習読書:『技術革新と不平等の1000年史（上）』読了\n- [ ] 予習読書:『ネット興亡記』読了\n- [ ] 週間リズム（パターンC）の策定\n\n---\n\n## A: 技術革命史\n\n### Week 1: 技術革命の全体地図（2026-04-05 〜 2026-04-11）\n- [ ] 読書:『第四次産業革命』シュワブ（薄い本。全体の地図として）\n- [ ] ディスカッション: 技術革命のリスト、「革命」の定義、技術決定論 vs 社会構成主義\n- [ ] ディスカッション: AI革命の歴史的位置づけ\n\n### Week 2: 活版印刷 — 知識の民主化（2026-04-12 〜 2026-04-18）\n- [ ] 読書:『グーテンベルクの銀河系』マクルーハン（集中読み。刺さるところを拾う）\n- [ ] ディスカッション: グーテンベルク、知識の独占の崩壊、宗教改革・科学革命への影響\n- [ ] ディスカッション:「じわじわ」の変化を深掘りする\n\n### Week 3: 蒸気機関と産業革命（2026-04-19 〜 2026-04-25）\n- [ ] 読書:『グーテンベルクの銀河系』続き（必要に応じて）\n- [ ] ディスカッション: 蒸気機関、工場制度、都市化、勝者と敗者\n- [ ] パターン抽出①: Week 1-3 のパターンをメモにまとめる\n\n### Week 4: 電気と第2次産業革命（2026-04-26 〜 2026-05-02）\n- [ ] 読書:『技術革新と不平等の1000年史（下）』開始\n- [ ] ディスカッション: 電気の普及、大量生産・大量消費、フォード式生産方式\n- [ ] ディスカッション: インフラ技術と「徐々に」の変化\n\n### Week 5: 通信革命 — 電信から電話へ（2026-05-03 〜 2026-05-09）\n- [ ] 読書:『技術革新と不平等の1000年史（下）』続き\n- [ ] ディスカッション: 電信、電話、ラジオ、テレビ。マスメディアの誕生\n- [ ] ディスカッション: 通信技術と「距離」の意味の変化\n\n### Week 6: コンピュータ革命（2026-05-10 〜 2026-05-16）\n- [ ] 動画: \"The Machine That Changed the World\"（PBS）視聴\n- [ ] ディスカッション: ENIAC → メインフレーム → パーソナルコンピュータ。「個人が持てる」瞬間\n- [ ] パターン抽出②: Week 4-6 のパターンをメモにまとめる\n\n### Week 7: インターネットの爆発（2026-05-17 〜 2026-05-23）\n- [ ] ディスカッション: ARPANET → WWW → ブラウザ一般化、ドットコムバブル\n- [ ] ディスカッション: B科目のネットワーク知識との接続\n- [ ] ディスカッション:『ネット興亡記』の内容を歴史のパターンに位置づける\n\n### Week 8: プラットフォームとソーシャルメディア（2026-05-24 〜 2026-06-06）\n- [ ] 読書:『プラットフォーム・レボリューション』パーカー\n- [ ] 記事: Ben Thompson \"Aggregation Theory\" を読む\n- [ ] ディスカッション: GAFA の台頭、ネットワーク効果、情報流通コストと権力構造\n\n### Week 9: スマートフォン — 「常時接続」の社会（2026-06-07 〜 2026-07-04）\n- [ ] 読書:『プラットフォーム・レボリューション』続き（必要に応じて）\n- [ ] ディスカッション: iPhone が変えたこと、アプリ経済、「既存の延長線上」仮説の検証\n- [ ] ディスカッション: 生成AIはなぜスマホと違うのか\n- [ ] パターン抽出③: Week 7-9 のパターンをメモにまとめる\n\n### Week 10: AI革命の歴史的位置づけ（2026-07-05 〜 2026-07-25）\n- [ ] 記事: Thoughtworks \"MCP's Impact on 2025\" を読む\n- [ ] ディスカッション: Week 1-9 のパターン整理、生成AIの位置づけ\n- [ ] 演習: パターン一覧表を作成し、AI革命への当てはめ分析\n\n### Week 11: AI革命の「じわじわ」を読む（2026-07-26 〜 2026-08-08）\n- [ ] 記事: \"Why the Model Context Protocol Won\" / \"A Year of MCP\" を読む\n- [ ] ディスカッション: 教育・労働・大学への影響、「時間だけが残る」仮説\n- [ ] 演習:「5年後に変わっていそうなこと」リスト作成\n\n### Week 12: 統合 — 自分の地図を描く（2026-08-09 〜 2026-08-29）\n- [ ] 技術革命史の年表を一枚にまとめる\n- [ ] 統合エッセイ初稿執筆（2,000〜3,000字。「虚構の受益者」仮説の提示。2Qで深化）\n- [ ] 振り返り: 1Qの学びを総括し、2Q「AI時代の社会構造論」への接続点を書き出す\n- [ ] 接続: Cの深掘り・外（MCP＝インフラ型GPTの実験台）の知見をエッセイの生燃料にする\n\n---\n\n## B: CS入門\n\n### Week 1: ハードウェアと二進数（2026-04-05 〜 2026-04-11）\n- [ ] 講義: CPU・メモリ・ストレージ、二進数・ビット・バイト\n- [ ] 演習: 二進数の手計算\n- [ ] 動画: CS50x Lecture 0 (Scratch) 視聴\n- [ ] 読書:『コンピュータはなぜ動くのか』第1章〜第3章 開始\n\n### Week 2: ソフトウェアとOS（2026-04-12 〜 2026-04-18）\n- [ ] 講義: ソースコード→機械語、OSの役割、インタプリタ vs コンパイラ\n- [ ] 演習: タスクマネージャーでプロセスとメモリを観察\n- [ ] 動画: CS50x Lecture 1 (C) 視聴\n- [ ] 読書:『コンピュータはなぜ動くのか』第1章〜第3章 完了\n\n### Week 3: Python基本構造（2026-04-19 〜 2026-04-25）\n- [ ] 講義: 変数、型、条件分岐、ループ\n- [ ] 演習: GAS の if/ループを Python で書き直す\n- [ ] 動画: MIT 6.100L Lecture 1-3 視聴\n- [ ] 読書:『コンピュータはなぜ動くのか』第4章〜第6章 開始\n\n### Week 4: 関数とデータ構造（2026-04-26 〜 2026-05-02）\n- [ ] 講義: 関数定義、スコープ、リスト・辞書・タプル・セット\n- [ ] 演習: GAS の配列・オブジェクトを Python のリスト・辞書に対応づける\n- [ ] 動画: MIT 6.100L Lecture 4-6 視聴\n\n### Week 5: アルゴリズムの考え方（2026-05-03 〜 2026-05-09）\n- [ ] 講義: 線形探索、二分探索、バブルソート、O記法の直感\n- [ ] 演習: Python で FizzBuzz、リスト操作、簡単なデータ集計\n- [ ] 動画: CS50x Lecture 3 (Algorithms) 視聴\n- [ ] 読書:『コンピュータはなぜ動くのか』第4章〜第6章 完了\n\n### Week 6: インターネットの基礎（2026-05-10 〜 2026-05-16）\n- [ ] 講義: IPアドレス、DNS、TCP/IP 4層モデル\n- [ ] 演習: ブラウザ開発者ツール（Network タブ）でHTTPリクエスト観察\n- [ ] 動画: CS50x Lecture 8 (HTML, CSS, JavaScript) 視聴\n- [ ] 読書:『ネットワークはなぜつながるのか』第1章〜第3章 開始\n\n### Week 7: HTTPとAPI（2026-05-17 〜 2026-05-23）\n- [ ] 講義: HTTP/HTTPS、REST API、JSON、プロトコルの概念\n- [ ] 演習: Python requests でAPIを叩く（天気予報API等）\n- [ ] 演習: curl コマンドの基本\n- [ ] 読書:『ネットワークはなぜつながるのか』第1章〜第3章 完了\n\n### Week 8: データベースの概念とSQL基礎（2026-05-24 〜 2026-05-30）\n- [ ] 講義: RDB の基本概念、テーブル・行・列・主キー\n- [ ] 演習: SELECT、WHERE、ORDER BY\n- [ ] 動画: CS50x Lecture 7 (SQL) 視聴\n- [ ] 読書:『スッキリわかるSQL入門』開始\n\n### Week 9: SQLの実践とデータ設計（2026-05-31 〜 2026-06-06）\n- [ ] 講義: INSERT/UPDATE/DELETE、JOIN、正規化、インデックス\n- [ ] 演習: SQLite で小さな DB を作る\n- [ ] 演習: スプレッドシートのデータを DB 化してみる\n- [ ] 読書:『スッキリわかるSQL入門』続き\n\n### Week 10: ウェブの構造（2026-06-07 〜 2026-06-13）\n- [ ] 講義: クライアント/サーバー、HTML/CSS/JS の役割分担、DOM\n- [ ] 演習: ブラウザ開発者ツールで DOM 操作を試す\n- [ ] 動画: CS50W Lecture 0-1 視聴\n- [ ] 読書:『プログラムはなぜ動くのか』開始\n\n### Week 11: フロントエンドとバックエンド（2026-06-14 〜 2026-07-11）\n- [ ] 講義: F/B の境界、サーバーサイド概要、認証の基本、PWA の仕組み分解\n- [ ] 演習: Python Flask で簡単な API サーバーを立てる\n- [ ] 演習: 自分の PWA のコードを読み直し、各部分の「なぜ」を説明する\n- [ ] 動画: CS50W Lecture 2 視聴\n\n### Week 12: 定着① ネットワーク再走＋認証メカニクス（2026-07-12 〜 2026-07-18）\n- [ ] ネットワーク再走（Week 6-7）：HTTPの上を運ばれるもの（ヘッダ/Cookie/トークン）をNetworkタブで実地観察\n- [x] 認証メカニクス：Cookie/セッション/トークン/OAuth を「トークンを毎回どう運ぶか」で串刺し（Week 11 再走 7/03-7/05 で消化済み）\n- [ ] 静的ホスト（原本＝push・読み中心）vs アプリサーバ＋DB（即時・頻繁変更）の線を自力で再走\n\n### Week 13: 定着② ハード/OS再走＋統合レポート最下階（2026-07-19 〜 2026-07-25）\n- [ ] ハード/OS再走（Week 1-2）：自分のMacで実地（アクティビティモニタ、RAM/SSD、CPUがJSを動かす）\n- [ ] 統合レポートの最下階（ハード→OS）を、観察を錨にして書く\n\n### Week 14: 定着③ 統合レポート完成（2026-07-26 〜 2026-08-08）\n- [ ] 全層（ハード→OS→プログラム→ネットワーク→DB→ブラウザ→DOM）を一本のリクエストで貫く\n- [ ] PWA分解（Book Shelf/Study Gantt）を全レイヤーで説明（SW/マニフェスト/キャッシュ）\n- [ ] 統合レポート完成＝B科目1Qの弧を閉じる\n\n---\n\n## C: AI/機械学習の基礎\n\n### Week 1: AIとは何か — 歴史と分類（2026-04-05 〜 2026-04-11）\n- [ ] 講義: AI の定義と歴史、ルールベース vs 機械学習、教師あり/なし/強化学習\n- [ ] 演習: 日常の「予測」を機械学習的に考える\n- [ ] 読書:『生成AI入門』Kniberg 開始\n\n### Week 2: 機械学習の基本的な考え方（2026-04-12 〜 2026-04-18）\n- [ ] 講義: データ→パターン→予測、過学習、訓練/テストデータ\n- [ ] 演習: 機械学習の分類マッピング図を自分で描く\n- [ ] 読書:『生成AI入門』Kniberg 続き\n\n### Week 3: ニューロンからネットワークへ（2026-04-19 〜 2026-04-25）\n- [ ] 講義: 人工ニューロン、層の概念、なぜ「深い」と複雑なパターンを学習できるか\n- [ ] 演習: ニューラルネットワークの各部分を自分の言葉で説明する\n- [ ] 動画: 3Blue1Brown \"But what is a neural network?\" 視聴\n\n### Week 4: 学習の仕組み — 「間違いから学ぶ」（2026-04-26 〜 2026-05-02）\n- [ ] 講義: 損失関数、勾配降下法、バックプロパゲーション\n- [ ] 演習: Google Colab で簡単なニューラルネットワークの動作を観察\n- [ ] 動画: 3Blue1Brown \"Gradient descent\" / \"Backpropagation\" 視聴\n- [ ] 動画: MIT 6.S191 Lecture 1 視聴\n\n### Week 5: 言語モデルの基本（2026-05-03 〜 2026-05-09）\n- [ ] 講義:「次の単語を予測する」仕組み、トークン、Embedding\n- [ ] 演習: Claude に「次の単語予測」を頼んで言語モデルの動作を体感\n- [ ] 読書:『仕組みからわかる大規模言語モデル』開始\n\n### Week 6: Transformer（2026-05-10 〜 2026-05-16）\n- [ ] 講義: Attention 機構、Self-Attention、Encoder-Decoder 構造\n- [ ] 演習: Transformer の Attention を図にして説明する\n- [ ] 動画: 3Blue1Brown \"Attention in transformers\" 視聴\n- [ ] 記事: Jay Alammar \"The Illustrated Transformer\" を読む\n\n### Week 7: LLM の訓練と能力（2026-05-17 〜 2026-05-23）\n- [ ] 講義: Pre-training、Instruction Tuning、RLHF、スケーリング則\n- [ ] 演習: Anthropic API で LLM と API レベルで対話してみる\n- [ ] 動画: MIT 6.S191 Lecture 2 視聴\n- [ ] 記事: Jay Alammar \"The Illustrated GPT-2\" を読む\n\n### Week 8: 生成AIの能力（2026-05-31 〜 2026-06-06）\n- [ ] 講義: Context Window、創発的能力、Zero-shot/Few-shot/CoT\n- [ ] 演習: 普段のプロンプト技法を技術的に再解釈する\n- [ ] 読書:『生成AI入門』Kniberg 後半\n\n### Week 9: 生成AIの限界と失敗モード（2026-06-07 〜 2026-06-13）\n- [ ] 講義: ハルシネーション、バイアス、知識カットオフ、アライメント\n- [ ] 演習: 意図的にハルシネーションを引き起こし分析する\n- [ ] 演習: temperature を変えて出力の違いを観察（API利用）\n- [ ] 記事: Anthropic Research（Claude の安全性）を読む\n\n### Week 10: RAGとコンテキストエンジニアリング（2026-06-21 〜 2026-06-27）\n- [ ] 講義: RAG、ベクトルDB、意味検索、コンテキスト設計\n- [ ] 演習: 簡単な RAG パイプラインの概念設計\n- [ ] 接続: Week 9で自力で出した「実在のものだけ返させる」＝RAGの直観の回収\n- [ ] 読書:『仕組みからわかる大規模言語モデル』RAG の章\n\n### Week 11: AIエージェントとツール連携・MCP（2026-06-28 〜 2026-07-04）\n- [ ] 講義: AIエージェント、Function Calling、MCP の技術的位置づけ\n- [ ] 演習: MCP の構造を図にまとめる\n- [ ] 記事: MCP 公式ドキュメント Architecture Overview を読む\n- [ ] A接続: この技術理解を A のMCP歴史分析の前提として渡す（7/04 着地済み）\n\n### Week 12: 深掘り・内 — Embedding-Transformer（2026-07-05 〜 2026-07-18）\n- [ ] gensim で Embedding 空間をもう一周（次元の呪いの蓄積）。gensim以外のEmbeddingも比較\n- [ ] 「印象≠実際に同じ」：自分の思考イメージと機構が、どこで韻を踏みどこで違うかの地図を描く\n- [ ] 地図(Embedding)→運動(Transformer)＝「思考」の像を自分の言葉でまとめる\n\n### Week 13: 深掘り・外 — MCP（2026-07-19 〜 2026-08-01）\n- [ ] 「MCPは本当に浸透したのか」を外のメーターに当てる（廃れた/情報環境の変化/現場では今も、を切り分け）\n- [ ] A科目インフラ型GPTの実験台として位置づけ、結論を A Week 12 の生燃料にする\n- [ ] 三科目の落ち合い点（繋ぎ目を握る者／繋ぎ目は難所／浸透の検証）を統合する\n\n### Week 14: 統合 — プロンプトの旅（2026-08-02 〜 2026-08-15）\n- [ ] プロンプト入力→トークン化→Embedding→Transformer→生成の全体を図解\n- [ ] 統合レポート執筆（図+文章:「Claudeに質問してから回答が返るまで」）\n- [ ] 深掘り・内／外の成果と矢印3（上流検証の族・半練り）を回収してレポートに畳み込む\n- [ ] B科目レポートとの統合を検討\n\n---\n\n## マイルストーン\n- 2026-04-04: オリエンテーション完了\n- 2026-04-25: A科目パターン抽出①（Week 1-3）\n- 2026-05-09: B科目 Python 基礎完了（Week 3-5）\n- 2026-05-16: A科目パターン抽出②（Week 4-6）\n- 2026-06-20: A科目パターン抽出③（Week 7-9）→ 全体見直しへ拡大、Week 10 に合流\n- 2026-07-04: C科目 MCP着地（A W11依存の必着点）\n- 2026-07-05: B科目 Week 11 完了（①②③分離・JWT・OAuth）\n- 2026-08-01: C科目 深掘り・外（MCP検証）着地（A W12依存の必着点）\n- 2026-08-08: B科目 定着アーク完了＝統合レポート＝Bの弧を閉じる\n- 2026-08-09: A科目 統合エッセイ着手\n- 2026-08-15: C科目 統合レポート完了＝Cの弧を閉じる\n- 2026-08-29: A科目 統合エッセイ初稿＝1Q完了＝2Qへの蝶番\n";
+
 // ===== DATE UTILITIES =====
 function pd(s) { return new Date(s + 'T00:00:00'); }
 function dayDiff(a, b) { return Math.round((b - a) / 86400000); }
@@ -23,6 +27,17 @@ function getWeekStart(d) { const r = new Date(d); r.setDate(r.getDate() - r.getD
 function getMonthStart(d) { return new Date(d.getFullYear(), d.getMonth(), 1); }
 function getMonthEnd(d) { return new Date(d.getFullYear(), d.getMonth()+1, 0); }
 function sameDay(a,b) { return a.getFullYear()===b.getFullYear() && a.getMonth()===b.getMonth() && a.getDate()===b.getDate(); }
+function fmtDT(d) { const p = n => String(n).padStart(2,'0'); return `${d.getMonth()+1}/${d.getDate()} ${p(d.getHours())}:${p(d.getMinutes())}`; }
+
+// Collect every task ID in the parsed schedule (ignores collapse state) — used for the footer count.
+function collectAllTaskIds(schedule) {
+  const ids = [];
+  for (const sec of schedule.sections) {
+    if (sec.tasks) sec.tasks.forEach(t => ids.push(t.id));
+    if (sec.weeks) sec.weeks.forEach(w => w.tasks.forEach(t => ids.push(t.id)));
+  }
+  return ids;
+}
 
 // ===== MARKDOWN PARSER =====
 function parseMd(md) {
@@ -169,6 +184,8 @@ const state = {
   navDate: new Date(),
   collapsed: {},
   completed: {},
+  scheduleSource: null,   // 'fetch' | 'cache' | 'builtin' | 'manual'
+  scheduleLoadedAt: null, // Date — 現在表示中スケジュールの取得日時
 };
 
 // ===== VIEW RANGE =====
@@ -299,9 +316,12 @@ function render() {
     }
   }
 
-  // Progress counts
-  const allTasks = rows.filter(r => r.type === 'task');
-  const doneTasks = allTasks.filter(r => r.done);
+  // Progress counts — count ALL tasks in the parsed schedule, not just the
+  // rows currently visible. buildRows() omits tasks under collapsed weeks/sections,
+  // so counting rows gave 0/0 whenever everything was collapsed (the default state).
+  const allTaskIds = collectAllTaskIds(schedule);
+  const totalCount = allTaskIds.length;
+  const doneCount = allTaskIds.filter(id => state.completed[id]).length;
 
   // Build HTML
   let html = `
@@ -425,10 +445,19 @@ function render() {
     html += `</div>`;
   }
 
+  const SRC_LABELS = { fetch: 'サーバー取得', cache: 'キャッシュ(前回取得)', builtin: '内蔵フォールバック', manual: '手動読込' };
+  const srcLabel = SRC_LABELS[state.scheduleSource] || '不明';
+  const isBuiltin = state.scheduleSource === 'builtin';
+  const loadedAt = state.scheduleLoadedAt ? fmtDT(state.scheduleLoadedAt) : '—';
+
   html += `</div></div>
   <div class="footer">
     <span>Self-Study with AI University</span>
-    <span>${doneTasks.length}/${allTasks.length} 完了</span>
+    <span>${doneCount}/${totalCount} 完了</span>
+  </div>
+  <div class="footer-meta${isBuiltin ? ' warn' : ''}">
+    <span>版: ${escapeHtml(schedule.meta.quarter || '')} 〜${escapeHtml(schedule.meta.endDate || '?')}</span>
+    <span>${isBuiltin ? '⚠ ' : ''}取得元: ${srcLabel} · ${loadedAt}</span>
   </div>`;
 
   app.innerHTML = html;
@@ -543,6 +572,8 @@ document.getElementById('file-input').addEventListener('change', (e) => {
       const md = ev.target.result;
       state.schedule = parseMd(md);
       saveScheduleMd(md);
+      state.scheduleSource = 'manual';
+      state.scheduleLoadedAt = new Date();
       initCollapsed();
       render();
     }
@@ -562,25 +593,34 @@ function initCollapsed() {
 
 // ===== INIT =====
 async function init() {
-  // Try to fetch schedule.md from same origin
+  // Source of truth is public/schedule.md. Fetch it network-first with cache
+  // busting so a pushed update always wins over any stale Service Worker / HTTP
+  // cache. Fall back to the last successfully fetched copy (offline), then to the
+  // embedded DEFAULT_MD. state.scheduleSource records which one we're showing so
+  // the footer can surface it.
   let md = null;
+  let source = null;
   try {
-    const res = await fetch('public/schedule.md');
+    const res = await fetch('public/schedule.md?_=' + Date.now(), { cache: 'no-store' });
     if (res.ok) {
       md = await res.text();
       saveScheduleMd(md);
+      source = 'fetch';
     }
   } catch(e) {}
 
   if (!md) {
     md = loadScheduleMd();
+    if (md) source = 'cache';
   }
 
   if (!md) {
-    document.getElementById('app').innerHTML = '<div class="loading">schedule.md を読み込めませんでした。<br>📁md読込ボタンからファイルを選択してください。<br><br><button onclick="document.getElementById(\'file-input\').click()" style="padding:10px 20px;font-size:14px;cursor:pointer">📁 md読込</button></div>';
-    return;
+    md = DEFAULT_MD;
+    source = 'builtin';
   }
 
+  state.scheduleSource = source;
+  state.scheduleLoadedAt = new Date();
   state.schedule = parseMd(md);
   state.completed = loadCompleted();
 
