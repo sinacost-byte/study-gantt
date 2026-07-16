@@ -1,5 +1,9 @@
 'use strict';
 
+// Code version stamp shown in the footer (deploy-reach diagnosis).
+// Bump on every commit that changes app.js.
+const APP_VERSION = '20260716-1';
+
 // ===== COLORS =====
 const COLORS = {
   ORI: { main: '#78716C', light: '#E7E5E4', lighter: '#F5F5F4', text: '#44403C' },
@@ -294,8 +298,30 @@ function getTodayPos(viewRange, chartW) {
   return (off / totalDays) * chartW;
 }
 
+// Center the today-line horizontally in #chart-scroll (vertical position is
+// left to render()'s preserve logic).
+function scrollTodayIntoView() {
+  setTimeout(() => {
+    const scroll = document.getElementById('chart-scroll');
+    const todayLine = scroll ? scroll.querySelector('.today-line-body') : null;
+    if (scroll && todayLine) {
+      const lineLeft = parseFloat(todayLine.style.left);
+      scroll.scrollLeft = Math.max(0, lineLeft + LABEL_W - scroll.clientWidth / 2);
+    }
+  }, 50);
+}
+
 // ===== RENDER =====
-function render() {
+// render() rebuilds #app via innerHTML, which destroys #chart-scroll and resets
+// its scroll position. opts.scroll picks the policy:
+//   'preserve' (default) — keep both scrollTop and scrollLeft (✅ / collapse)
+//   'reset-x'            — keep scrollTop, scrollLeft starts at 0 (nav / setView)
+//   'center-today'       — keep scrollTop, center the today-line horizontally
+function render(opts = {}) {
+  const mode = opts.scroll || 'preserve';
+  const prev = document.getElementById('chart-scroll');
+  const keep = prev ? { top: prev.scrollTop, left: prev.scrollLeft } : null;
+
   const app = document.getElementById('app');
   if (!state.schedule) {
     app.innerHTML = '<div class="loading">読み込み中...</div>';
@@ -481,10 +507,18 @@ function render() {
   </div>
   <div class="footer-meta${isBuiltin ? ' warn' : ''}">
     <span>版: ${escapeHtml(schedule.meta.quarter || '')} 〜${escapeHtml(schedule.meta.endDate || '?')}</span>
-    <span>${isBuiltin ? '⚠ ' : ''}取得元: ${srcLabel} · ${loadedAt}</span>
+    <span>${isBuiltin ? '⚠ ' : ''}取得元: ${srcLabel} · ${loadedAt} · app ${APP_VERSION}</span>
   </div>`;
 
   app.innerHTML = html;
+
+  const sc = document.getElementById('chart-scroll');
+  if (sc && keep) {
+    sc.scrollTop = keep.top; // 縦は常に保持（内容が縮めばブラウザがクランプ）
+    if (mode === 'preserve') sc.scrollLeft = keep.left;
+    // 'reset-x' は何もしない＝再生成直後の 0 のまま
+  }
+  if (mode === 'center-today') scrollTodayIntoView();
 }
 
 function escapeHtml(s) {
@@ -521,7 +555,7 @@ function attachEvents() {
       if (text) showTooltip(text, e.clientX, e.clientY);
     } else if (action === 'setView') {
       state.viewMode = target.getAttribute('data-view');
-      render();
+      render({ scroll: 'reset-x' }); // チャート幅が変わり旧 scrollLeft は無意味。縦は保持
     } else if (action === 'nav') {
       const dir = parseInt(target.getAttribute('data-dir'));
       let d = new Date(state.navDate);
@@ -535,10 +569,10 @@ function attachEvents() {
         else if (unit > b.max) d = new Date(b.max);
       }
       state.navDate = d;
-      render();
+      render({ scroll: 'reset-x' }); // 期間が変わるので横は左端から。縦は保持
     } else if (action === 'today') {
       state.navDate = new Date();
-      render();
+      render({ scroll: 'center-today' });
     } else if (action === 'toggleCollapse') {
       const key = target.getAttribute('data-key');
       state.collapsed[key] = !state.collapsed[key];
@@ -607,7 +641,7 @@ document.getElementById('file-input').addEventListener('change', (e) => {
       state.scheduleSource = 'manual';
       state.scheduleLoadedAt = new Date();
       initCollapsed();
-      render();
+      render({ scroll: 'center-today' }); // 新スケジュール読込後の基準位置
     }
   };
   reader.readAsText(file);
@@ -671,19 +705,8 @@ async function init() {
   // Set navDate to current month
   state.navDate = new Date();
 
-  render();
+  render({ scroll: 'center-today' });
   attachEvents();
-
-  // Scroll today into view after render
-  setTimeout(() => {
-    const scroll = document.getElementById('chart-scroll');
-    const todayLine = scroll ? scroll.querySelector('.today-line-body') : null;
-    if (scroll && todayLine) {
-      const lineLeft = parseFloat(todayLine.style.left);
-      const scrollTo = lineLeft + LABEL_W - scroll.clientWidth / 2;
-      scroll.scrollLeft = Math.max(0, scrollTo);
-    }
-  }, 50);
 }
 
 // ===== SERVICE WORKER =====

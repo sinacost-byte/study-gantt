@@ -22,3 +22,5 @@ URL: sinacost-byte.github.io/study-gantt/
 - 修正完了後、作業ログを `docs/logs/` に残すこと
 - ログのファイル名: `work_log_YYYYMMDD.md`
 - 修正内容の概要、変更ファイル、注意点を記載すること
+- app.js を変更するコミットでは `APP_VERSION`（app.js 冒頭）を更新すること
+- デプロイ（push）ごとに sw.js の `CACHE` をバンプすること

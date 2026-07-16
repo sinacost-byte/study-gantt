@@ -1,7 +1,7 @@
 // Bump CACHE on every deploy so the activate handler purges the old cache and
 // the app picks up new code. (v1 never changed, so app.js/style.css updates were
 // permanently trapped behind cache-first.)
-const CACHE = 'study-gantt-v2';
+const CACHE = 'study-gantt-v3';
 const ASSETS = [
   '.',
   'index.html',
